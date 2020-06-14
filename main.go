@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"time"
 	"ubiwhere-challenge/database"
 	"ubiwhere-challenge/toolset"
@@ -43,8 +42,6 @@ func main() {
 	go scheduleDataOS(db)
 	go scheduleSampleData(db)
 
-	//time.Sleep(10 * time.Second)
-
 	opt := ""
 
 	for opt != "0" {
@@ -55,16 +52,22 @@ func main() {
 			os.Exit(0)
 			break
 		case "1":
-			// Convert value ascii to int
-			value, _ := strconv.Atoi(value)
 			data, _ := toolset.GetLastN(db, value)
 
+			// Escape code to clear console
 			fmt.Println("\033[H\033[2J")
+
 			// Print data
-			toolset.PrintLastN(data)
+			toolset.PrintLastN(data, value)
 		case "2":
-			data, _ := toolset.GetLastN(db, 2)
-			toolset.PrintOneMoreLastN(data, value)
+			data, _ := toolset.GetLastN(db, value)
+			fmt.Printf("%v\n", value)
+
+			// Escape code to clear console
+			fmt.Println("\033[H\033[2J")
+
+			// Print data
+			toolset.PrintLastN(data, value)
 		}
 	}
 

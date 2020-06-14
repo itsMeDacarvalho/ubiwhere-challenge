@@ -7,6 +7,7 @@ import (
 	"math"
 	"os"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 	"ubiwhere-challenge/collector"
@@ -16,8 +17,8 @@ import (
 	"github.com/boltdb/bolt"
 )
 
-// PrintSampleData - Show in terminal well formated SAMPLE table data
-func PrintSampleData(db *bolt.DB) error {
+// PrintAllSampleData show in terminal well formated SAMPLE table with all data
+func PrintAllSampleData(db *bolt.DB) error {
 	// Temporary struct to decode json
 	var tmpSample database.Sample
 
@@ -45,8 +46,8 @@ func PrintSampleData(db *bolt.DB) error {
 	return err
 }
 
-// PrintOSData - Show in terminal well formated OS table data
-func PrintOSData(db *bolt.DB) error {
+// PrintAllOSData show in terminal well formated OS table with all data
+func PrintAllOSData(db *bolt.DB) error {
 	// Temporary struct to decode json
 	var tmpOS database.PerformanceOS
 
@@ -74,7 +75,7 @@ func PrintOSData(db *bolt.DB) error {
 	return err
 }
 
-// StoreDataOS - get info from OS and perform an entry on database
+// StoreDataOS get info from OS and perform an entry on database
 func StoreDataOS(db *bolt.DB) error {
 	infoRAM := collector.GetRAM()
 	err := database.AddSystemStat(db, collector.GetCPU(), infoRAM[0], infoRAM[1])
@@ -82,32 +83,40 @@ func StoreDataOS(db *bolt.DB) error {
 	return err
 }
 
-// StoreSample - get samples from simulator and perform an entry on database
+// StoreSample get samples from simulator and perform an entry on database
 func StoreSample(db *bolt.DB) error {
 	err := database.AddSample(db, sim.GenerateSamples())
 
 	return err
 }
 
-// GetLastN - Returns a map with variable as key and metrics as value
-func GetLastN(db *bolt.DB, desiredN int) (map[int][]int, error) {
+// GetLastN  take a database to lookup and a code string with variables and number
+// of metrics to return
+func GetLastN(db *bolt.DB, codeStr string) (map[int][]int, error) {
 	// Map with type of sample as key to array of last n values
 	sampleData := make(map[int][]int)
 
+	// Code string to array - this code maps which variables user want to see
+	codeArray := strings.Split(codeStr, ",")
+
+	// Desired numberof metrics. This come from first element of codeStr
+	desiredN, _ := strconv.Atoi(codeArray[0])
+
 	// Temporary structs to decode json
-	//var tmpOS database.PerformanceOS
 	var tmpSamples database.Sample
 	var tmpOS database.PerformanceOS
 
+	// Start database transaction
 	err := db.View(func(tx *bolt.Tx) error {
 		// Get SAMPLES table data
 		sampleTable := tx.Bucket([]byte("DB")).Bucket([]byte("SAMPLES"))
 		osTable := tx.Bucket([]byte("DB")).Bucket([]byte("OS"))
 
-		//Create new cursor for SAMPLES table and point to last entry
+		//Create new cursor for SAMPLES and OS table and point to last entry
 		sampleCursor := sampleTable.Cursor()
 		osCursor := osTable.Cursor()
 
+		// Point to last entry in SAMPLES and OS tables
 		_, sampleValue := sampleCursor.Last()
 		_, osValue := osCursor.Last()
 
@@ -121,15 +130,25 @@ func GetLastN(db *bolt.DB, desiredN int) (map[int][]int, error) {
 			json.Unmarshal([]byte(sampleValue), &tmpSamples)
 			json.Unmarshal([]byte(osValue), &tmpOS)
 
-			// Sample data fetched to map
-			// Final map to return : [S1 S2 S3 S4 CPU TOTAL_RAM USED_RAM]
-			sampleData[desiredN-i] = append(sampleData[desiredN-i], tmpSamples.Sample1)
-			sampleData[desiredN-i] = append(sampleData[desiredN-i], tmpSamples.Sample2)
-			sampleData[desiredN-i] = append(sampleData[desiredN-i], tmpSamples.Sample3)
-			sampleData[desiredN-i] = append(sampleData[desiredN-i], tmpSamples.Sample4)
-			sampleData[desiredN-i] = append(sampleData[desiredN-i], int(math.Round(tmpOS.CPU)))
-			sampleData[desiredN-i] = append(sampleData[desiredN-i], int(tmpOS.TotalRAM))
-			sampleData[desiredN-i] = append(sampleData[desiredN-i], int(tmpOS.UsedRAM))
+			// Create final map with desired info
+			if Find(codeArray, "c") {
+				sampleData[desiredN-i] = append(sampleData[desiredN-i], int(math.Round(tmpOS.CPU)))
+			}
+			if Find(codeArray, "r") {
+				sampleData[desiredN-i] = append(sampleData[desiredN-i], int(tmpOS.UsedRAM))
+			}
+			if Find(codeArray, "1") {
+				sampleData[desiredN-i] = append(sampleData[desiredN-i], tmpSamples.Sample1)
+			}
+			if Find(codeArray, "2") {
+				sampleData[desiredN-i] = append(sampleData[desiredN-i], tmpSamples.Sample2)
+			}
+			if Find(codeArray, "3") {
+				sampleData[desiredN-i] = append(sampleData[desiredN-i], tmpSamples.Sample3)
+			}
+			if Find(codeArray, "4") {
+				sampleData[desiredN-i] = append(sampleData[desiredN-i], tmpSamples.Sample4)
+			}
 
 			// Point cursor to the previous entry
 			_, sampleValue = sampleCursor.Prev()
@@ -147,66 +166,35 @@ func GetLastN(db *bolt.DB, desiredN int) (map[int][]int, error) {
 }
 
 // PrintLastN - Prints all last n metrics in a well formated way
-func PrintLastN(data map[int][]int) {
+func PrintLastN(data map[int][]int, codeStr string) {
+	iterationsLoop := len(data[1])
 
-	//Print header
-	fmt.Printf("+----------------------------------------------------------------------------------------+\n")
-	fmt.Printf("| # | \t S1 \t S2 \t S3 \t S4 \t | CPU \t\t Used RAM \t Total RAM \t | \n")
-	fmt.Printf("+----------------------------------------------------------------------------------------+\n")
-	fmt.Printf("+----------------------------------------------------------------------------------------+\n")
-	// To store the keys in slice in sorted order
+	// Display a nice header for our table
+	FormatTableHeader(codeStr, iterationsLoop)
+
+	// Sort keys to show correct info
 	var keys []int
 	for k := range data {
 		keys = append(keys, k)
 	}
 	sort.Ints(keys)
 
-	for _, k := range keys {
-		fmt.Printf("| %d | \t %d \t %d \t %d \t %d \t | %d%% \t\t %d Mb \t %d \t\t | \n", k, data[k][0], data[k][1], data[k][2], data[k][3], data[k][4], data[k][6], data[k][5])
-		fmt.Printf("+----------------------------------------------------------------------------------------+\n")
-	}
-}
-
-// PrintOneMoreLastN - Prints all last n metrics choosed by user
-func PrintOneMoreLastN(data map[int][]int, codeStr string) {
-	fmt.Println(codeStr)
-	decodeStr := map[string]string{
-		"c": "CPU",
-		"r": "RAM",
-		"1": "S1",
-		"2": "S2",
-		"3": "S3",
-		"4": "S4",
+	// Start printing info in table
+	for i := 1; i <= len(data); i++ {
+		fmt.Printf("|%d\t", i)
+		for j := 0; j < iterationsLoop; j++ {
+			fmt.Printf("| %d \t\t", data[i][j])
+		}
+		fmt.Printf("|\n")
 	}
 
-	codeArray := strings.Split(codeStr, ",")
+	// Display bottom of table in a nice way too
+	fmt.Printf("+-------")
 
-	metricsNumber := codeArray[0]
-
-	fmt.Printf("Showing %s metrics...\n", metricsNumber)
-
-	//Print header
-	fmt.Printf("+----------------------------------------------------------------------------------------+\n|")
-
-	// Get variable name from decode string map and produce the table header
-	for i := 1; i < len(codeArray); i++ {
-		fmt.Printf("%s \t\t", decodeStr[codeArray[i]])
+	for i := 0; i < iterationsLoop; i++ {
+		fmt.Printf("----------------")
 	}
-
-	fmt.Printf("|\n+----------------------------------------------------------------------------------------+\n")
-	fmt.Printf("+----------------------------------------------------------------------------------------+\n")
-
-	// To store the keys in slice in sorted order
-	var keys []int
-	for k := range data {
-		keys = append(keys, k)
-	}
-	sort.Ints(keys)
-	/*
-		for _, k := range keys {
-			fmt.Printf("| %d | \t %d \t %d \t %d \t %d \t | %d%% \t\t %d Mb \t %d \t\t | \n", k, data[k][0], data[k][1], data[k][2], data[k][3], data[k][4], data[k][6], data[k][5])
-			fmt.Printf("+----------------------------------------------------------------------------------------+\n")
-		}*/
+	fmt.Printf("+\n")
 }
 
 // PrintMenu - Display well formated menu to user and return choosed option
@@ -244,7 +232,7 @@ func PrintMenu() (string, string) {
 		fmt.Printf(">> How many metrics: ")
 		n, _ := reader.ReadString('\n')
 		n = strings.TrimSuffix(n, "\n")
-		return opt, n
+		return opt, fmt.Sprintf("%s,c,r,1,2,3,4", n)
 
 	case "2":
 		// Variable to store sorted keys
@@ -290,6 +278,42 @@ func PrintMenu() (string, string) {
 	return opt, ""
 }
 
+// FormatTableHeader displays a custom table header for desired info
+func FormatTableHeader(headerInfo string, numberRows int) {
+	decodeStr := map[string]string{
+		"c": "CPU (%)",
+		"r": "RAM (Mb)",
+		"1": "Sample 1",
+		"2": "Sample 2",
+		"3": "Sample 3",
+		"4": "Sample 4",
+	}
+
+	// Convert header info string into an array in order to iterate it
+	codeArray := strings.Split(headerInfo, ",")
+
+	fmt.Printf("+-------")
+
+	for i := 0; i < numberRows; i++ {
+		fmt.Printf("----------------")
+	}
+	fmt.Printf("+\n")
+
+	// Get variable name from decode string map and produce the table header
+	fmt.Printf("|# \t")
+	for i := 1; i < len(codeArray); i++ {
+		fmt.Printf("| %s \t", decodeStr[codeArray[i]])
+	}
+
+	fmt.Printf("|\n")
+	fmt.Printf("+-------")
+
+	for i := 0; i < numberRows; i++ {
+		fmt.Printf("----------------")
+	}
+	fmt.Printf("+\n")
+}
+
 // WriteToLog - Write to log file the argument received
 func WriteToLog(entry string) {
 	// If the file doesn't exist, create it, or append to the file
@@ -319,4 +343,15 @@ func GetFormatedTime() string {
 // GetFormatedDate - returns date in format dd/mm/aa
 func GetFormatedDate() string {
 	return time.Now().Format("02/01/06")
+}
+
+// Find takes a slice and looks for an element in it. If found it will
+// return it's key, otherwise it will return -1 and a bool of false.
+func Find(slice []string, val string) bool {
+	for _, item := range slice {
+		if item == val {
+			return true
+		}
+	}
+	return false
 }
