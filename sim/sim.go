@@ -5,11 +5,8 @@ import (
 	"time"
 )
 
-/*
-This function will generate random data in order
-to simulate an external device. Lets say 4 int
-samples!
-*/
+// GenerateSamples - This function will generate random data in order
+// to simulate an external device. Lets say 4 int samples!
 func GenerateSamples() []int {
 	sampleData := make([]int, 4)
 
