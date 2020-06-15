@@ -13,6 +13,8 @@ A local database was implemented using a Go library **- Bolt -** which provides 
 
 A **log file** is created, with all started sessions and relevant information. The **database is created whenever it does not exist** and its control variables are also updated with each new session of the program.
 
+> Some code produced is **not optimized, however it works!**
+
 # 
 |Requirement               |Implemented                | Tested |
 |----------------|-------------------------------|--------------|
