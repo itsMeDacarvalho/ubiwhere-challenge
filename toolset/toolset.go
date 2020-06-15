@@ -165,6 +165,130 @@ func GetLastN(db *bolt.DB, codeStr string) (map[int][]int, error) {
 	return sampleData, err
 }
 
+// PrintAverage gets a database to lookup and a code string with variables wanted by
+// the user, and prints the average for every variable
+func PrintAverage(db *bolt.DB, codeStr string) error {
+	var tmpOS database.PerformanceOS
+	var tmpSample database.Sample
+	var tmpData []int
+	var averageValues []float64
+
+	codeArray := strings.Split(codeStr, ",")
+
+	err := db.View(func(tx *bolt.Tx) error {
+		for _, v := range codeArray {
+			tmpData = nil
+			if v == "c" {
+				data := tx.Bucket([]byte("DB")).Bucket([]byte("OS"))
+
+				data.ForEach(func(k, v []byte) error {
+					// Decode json
+					json.Unmarshal([]byte(v), &tmpOS)
+					tmpData = append(tmpData, int(math.Round(tmpOS.CPU)))
+					return nil
+				})
+
+				averageValues = append(averageValues, ComputeAverage(tmpData))
+			} else if v == "r" {
+				data := tx.Bucket([]byte("DB")).Bucket([]byte("OS"))
+
+				data.ForEach(func(k, v []byte) error {
+					// Decode json
+					json.Unmarshal([]byte(v), &tmpOS)
+					tmpData = append(tmpData, int(tmpOS.UsedRAM))
+					return nil
+				})
+
+				averageValues = append(averageValues, ComputeAverage(tmpData))
+			} else if v == "1" {
+				data := tx.Bucket([]byte("DB")).Bucket([]byte("SAMPLES"))
+
+				data.ForEach(func(k, v []byte) error {
+					// Decode json
+					json.Unmarshal([]byte(v), &tmpSample)
+					tmpData = append(tmpData, tmpSample.Sample1)
+					return nil
+				})
+
+				averageValues = append(averageValues, ComputeAverage(tmpData))
+			} else if v == "2" {
+				data := tx.Bucket([]byte("DB")).Bucket([]byte("SAMPLES"))
+
+				data.ForEach(func(k, v []byte) error {
+					// Decode json
+					json.Unmarshal([]byte(v), &tmpSample)
+					tmpData = append(tmpData, tmpSample.Sample2)
+					return nil
+				})
+
+				averageValues = append(averageValues, ComputeAverage(tmpData))
+			} else if v == "3" {
+				data := tx.Bucket([]byte("DB")).Bucket([]byte("SAMPLES"))
+
+				data.ForEach(func(k, v []byte) error {
+					// Decode json
+					json.Unmarshal([]byte(v), &tmpSample)
+					tmpData = append(tmpData, tmpSample.Sample3)
+					return nil
+				})
+
+				averageValues = append(averageValues, ComputeAverage(tmpData))
+			} else if v == "4" {
+				data := tx.Bucket([]byte("DB")).Bucket([]byte("SAMPLES"))
+
+				data.ForEach(func(k, v []byte) error {
+					// Decode json
+					json.Unmarshal([]byte(v), &tmpSample)
+					tmpData = append(tmpData, tmpSample.Sample4)
+					return nil
+				})
+
+				averageValues = append(averageValues, ComputeAverage(tmpData))
+			}
+		}
+		return nil
+	})
+
+	// Create a nice table header. In this case it is needed to add a 0 to code string
+	// in order to match the expected code received
+	FormatTableHeader(fmt.Sprintf("0,%s", codeStr), len(averageValues))
+
+	fmt.Printf("|Avg.\t")
+	for i := 0; i < len(averageValues); i++ {
+		// Fix tab space for values for values bigger than 1000
+		if averageValues[i] >= 1000 {
+			fmt.Printf("| %.2f \t", averageValues[i])
+		} else {
+			fmt.Printf("| %.2f \t\t", averageValues[i])
+		}
+
+	}
+	fmt.Printf("|\n")
+
+	// Display bottom of table in a nice way too
+	fmt.Printf("+-------")
+
+	for i := 0; i < len(averageValues); i++ {
+		fmt.Printf("----------------")
+	}
+	fmt.Printf("+\n")
+
+	return err
+}
+
+// ComputeAverage takes a array of ints and return the values average
+func ComputeAverage(values []int) float64 {
+	tmpSum := 0
+	var average float64
+
+	for _, v := range values {
+		tmpSum = tmpSum + v
+	}
+
+	average = float64(tmpSum) / float64(len(values))
+	return average
+}
+
 // PrintLastN - Prints all last n metrics in a well formated way
 func PrintLastN(data map[int][]int, codeStr string) {
 	iterationsLoop := len(data[1])
@@ -229,7 +353,7 @@ func PrintMenu() (string, string) {
 
 	switch opt {
 	case "1":
-		fmt.Printf(">> How many metrics: ")
+		fmt.Printf("\n>> How many metrics: ")
 		n, _ := reader.ReadString('\n')
 		n = strings.TrimSuffix(n, "\n")
 		return opt, fmt.Sprintf("%s,c,r,1,2,3,4", n)
@@ -272,6 +396,38 @@ func PrintMenu() (string, string) {
 
 		// Remove last "," from code str and return opt and optStr
 		return opt, strings.TrimSuffix(optStr, ",")
+
+	case "3":
+		// Variable to store sorted keys
+		var tmpSort []string
+
+		// Iterate over keys to append in slice
+		for k := range options {
+			tmpSort = append(tmpSort, k)
+		}
+
+		// Sort slice to ask user in desired order
+		sort.Strings(tmpSort)
+
+		fmt.Printf("\n")
+
+		// Get user desired variables
+		for i := 0; i < len(tmpSort); i++ {
+			fmt.Printf(">> %s [y/n]: ", tmpSort[i])
+
+			// Read user choice
+			n, _ := reader.ReadString('\n')
+			n = strings.TrimSuffix(n, "\n")
+
+			// Append choice to optStr
+			if strings.ToLower(n) == "y" {
+				// Produce a code string like c,r,1, ... in order to know which variables user want
+				optStr = fmt.Sprintf("%s%s,", optStr, options[tmpSort[i]])
+			}
+		}
+
+		// Remove last "," from code str and return opt and optStr
+		return opt, strings.TrimSuffix(optStr, ",")
 	}
 
 	// Return option
@@ -279,6 +435,8 @@ func PrintMenu() (string, string) {
 }
 
 // FormatTableHeader displays a custom table header for desired info
+// Header info string : first char must be the number of variables wanted by the user
+// and the other ones are... c-cpu; r-ram; 1-sample1; 2-sample2; 3-sample3; 4-sample4
 func FormatTableHeader(headerInfo string, numberRows int) {
 	decodeStr := map[string]string{
 		"c": "CPU (%)",
