@@ -326,6 +326,7 @@ func PrintMenu() (string, string) {
 	reader := bufio.NewReader(os.Stdin)
 	optStr := ""
 
+	// Options map to encode user preferences
 	options := map[string]string{
 		"CPU":      "c",
 		"RAM":      "r",
@@ -335,6 +336,7 @@ func PrintMenu() (string, string) {
 		"Sample 4": "4",
 	}
 
+	// Display menu info
 	fmt.Printf("\n\n+---------------------------------------------------------------+\n")
 	fmt.Printf("|\t\t\tUBIWHERE CHALLENGE\t\t\t|\n")
 	fmt.Printf("+---------------------------------------------------------------+\n")
@@ -369,6 +371,8 @@ func PrintMenu() (string, string) {
 
 		// Sort slice
 		sort.Strings(tmpSort)
+
+		fmt.Printf("\n")
 
 		// Get number of metrics from user
 		fmt.Printf(">> How many metrics: ")
