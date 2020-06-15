@@ -10,9 +10,10 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"ubiwhere-challenge/collector"
-	"ubiwhere-challenge/database"
-	"ubiwhere-challenge/sim"
+
+	"github.com/itsMeDacarvalho/ubiwhere-challenge/collector"
+	"github.com/itsMeDacarvalho/ubiwhere-challenge/database"
+	"github.com/itsMeDacarvalho/ubiwhere-challenge/sim"
 
 	"github.com/boltdb/bolt"
 )

@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"os"
 	"time"
-	"ubiwhere-challenge/database"
-	"ubiwhere-challenge/toolset"
+
+	"github.com/itsMeDacarvalho/ubiwhere-challenge/database"
+	"github.com/itsMeDacarvalho/ubiwhere-challenge/toolset"
 
 	"github.com/boltdb/bolt"
 )
