@@ -20,5 +20,5 @@ func GetRAM() []uint64 {
 func GetCPU() float64 {
 	cpuStats, _ := cpu.Percent(0, true)
 
-	return cpuStats[cpu.CPUser]
+	return cpuStats[0]
 }
