@@ -266,12 +266,12 @@ func PrintAverage(db *bolt.DB, codeStr string) error {
 	fmt.Printf("|\n")
 
 	// Display bottom of table in a nice way too
-	fmt.Printf("+-------")
+	fmt.Printf("+-------+")
 
 	for i := 0; i < len(averageValues); i++ {
-		fmt.Printf("----------------")
+		fmt.Printf("---------------+")
 	}
-	fmt.Printf("+\n")
+	fmt.Printf("\n")
 
 	return err
 }
@@ -313,12 +313,12 @@ func PrintLastN(data map[int][]int, codeStr string) {
 	}
 
 	// Display bottom of table in a nice way too
-	fmt.Printf("+-------")
+	fmt.Printf("+-------+")
 
 	for i := 0; i < iterationsLoop; i++ {
-		fmt.Printf("----------------")
+		fmt.Printf("---------------+")
 	}
-	fmt.Printf("+\n")
+	fmt.Printf("\n")
 }
 
 // PrintMenu - Display well formated menu to user and return choosed option
@@ -454,12 +454,12 @@ func FormatTableHeader(headerInfo string, numberRows int) {
 	// Convert header info string into an array in order to iterate it
 	codeArray := strings.Split(headerInfo, ",")
 
-	fmt.Printf("+-------")
+	fmt.Printf("+-------+")
 
 	for i := 0; i < numberRows; i++ {
-		fmt.Printf("----------------")
+		fmt.Printf("---------------+")
 	}
-	fmt.Printf("+\n")
+	fmt.Printf("\n")
 
 	// Get variable name from decode string map and produce the table header
 	fmt.Printf("|# \t")
@@ -468,12 +468,12 @@ func FormatTableHeader(headerInfo string, numberRows int) {
 	}
 
 	fmt.Printf("|\n")
-	fmt.Printf("+-------")
+	fmt.Printf("+-------+")
 
 	for i := 0; i < numberRows; i++ {
-		fmt.Printf("----------------")
+		fmt.Printf("---------------+")
 	}
-	fmt.Printf("+\n")
+	fmt.Printf("\n")
 }
 
 // WriteToLog - Write to log file the argument received
