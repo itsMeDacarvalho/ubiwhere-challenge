@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -350,15 +351,22 @@ func PrintMenu() (string, string) {
 
 	// Read string until user ENTER aka newline
 	opt, _ := reader.ReadString('\n')
+	suffix := ""
+
+	if runtime.GOOS == "windows" {
+		suffix = "\r\n"
+	} else {
+		suffix = "\n"
+	}
 
 	// Delete return carriage / newline from option readed
-	opt = strings.TrimSuffix(opt, "\n")
+	opt = strings.TrimSuffix(opt, suffix)
 
 	switch opt {
 	case "1":
 		fmt.Printf("\n>> How many metrics: ")
 		n, _ := reader.ReadString('\n')
-		n = strings.TrimSuffix(n, "\r\n")
+		n = strings.TrimSuffix(n, suffix)
 		return opt, fmt.Sprintf("%s,c,r,1,2,3,4", n)
 
 	case "2":
@@ -378,7 +386,7 @@ func PrintMenu() (string, string) {
 		// Get number of metrics from user
 		fmt.Printf(">> How many metrics: ")
 		n, _ := reader.ReadString('\n')
-		n = strings.TrimSuffix(n, "\r\n")
+		n = strings.TrimSuffix(n, suffix)
 
 		optStr = fmt.Sprintf("%s%s,", optStr, n)
 
@@ -390,7 +398,7 @@ func PrintMenu() (string, string) {
 
 			// Read user choice
 			n, _ := reader.ReadString('\n')
-			n = strings.TrimSuffix(n, "\n")
+			n = strings.TrimSuffix(n, suffix)
 
 			// Append choice to optStr
 			if strings.ToLower(n) == "y" {
@@ -422,7 +430,7 @@ func PrintMenu() (string, string) {
 
 			// Read user choice
 			n, _ := reader.ReadString('\n')
-			n = strings.TrimSuffix(n, "\r\n")
+			n = strings.TrimSuffix(n, suffix)
 
 			// Append choice to optStr
 			if strings.ToLower(n) == "y" {

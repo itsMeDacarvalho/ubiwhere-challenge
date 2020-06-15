@@ -49,9 +49,6 @@ func main() {
 	// opt string to get user data
 	opt := ""
 
-	// Escape code to clear console
-	fmt.Println("\033[H\033[2J")
-
 	for opt != "0" {
 		opt, value := toolset.PrintMenu()
 
@@ -63,24 +60,14 @@ func main() {
 		case "1":
 			data, _ := toolset.GetLastN(db, value)
 
-			// Escape code to clear console
-			fmt.Println("\033[H\033[2J")
-
 			// Print data
 			toolset.PrintLastN(data, value)
 		case "2":
 			data, _ := toolset.GetLastN(db, value)
-			fmt.Printf("%v\n", value)
-
-			// Escape code to clear console
-			fmt.Println("\033[H\033[2J")
 
 			// Print data
 			toolset.PrintLastN(data, value)
 		case "3":
-			// Escape code to clear console
-			fmt.Println("\033[H\033[2J")
-
 			toolset.PrintAverage(db, value)
 		}
 	}
