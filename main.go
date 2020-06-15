@@ -42,6 +42,10 @@ func main() {
 	go scheduleDataOS(db)
 	go scheduleSampleData(db)
 
+	// Wait one second to sample the first data
+	time.Sleep(time.Second * 1)
+
+	// opt string to get user data
 	opt := ""
 
 	// Escape code to clear console
