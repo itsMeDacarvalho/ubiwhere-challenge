@@ -357,7 +357,7 @@ func PrintMenu() (string, string) {
 	case "1":
 		fmt.Printf("\n>> How many metrics: ")
 		n, _ := reader.ReadString('\n')
-		n = strings.TrimSuffix(n, "\n")
+		n = strings.TrimSuffix(n, "\r\n")
 		return opt, fmt.Sprintf("%s,c,r,1,2,3,4", n)
 
 	case "2":
@@ -377,7 +377,7 @@ func PrintMenu() (string, string) {
 		// Get number of metrics from user
 		fmt.Printf(">> How many metrics: ")
 		n, _ := reader.ReadString('\n')
-		n = strings.TrimSuffix(n, "\n")
+		n = strings.TrimSuffix(n, "\r\n")
 
 		optStr = fmt.Sprintf("%s%s,", optStr, n)
 
@@ -421,7 +421,7 @@ func PrintMenu() (string, string) {
 
 			// Read user choice
 			n, _ := reader.ReadString('\n')
-			n = strings.TrimSuffix(n, "\n")
+			n = strings.TrimSuffix(n, "\r\n")
 
 			// Append choice to optStr
 			if strings.ToLower(n) == "y" {
