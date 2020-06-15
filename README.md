@@ -15,7 +15,7 @@ A **log file** is created, with all started sessions and relevant information. T
 
 > **Attention:** Some code produced is **not optimized, however it works!**
 
-# 
+# Requirements
 |Requirement               |Implemented                | Tested |
 |----------------|-------------------------------|--------------|
 |Collect **CPU** and **RAM**                |:white_check_mark: |:white_check_mark: |
@@ -26,11 +26,12 @@ A **log file** is created, with all started sessions and relevant information. T
 |Get an **average** of the value of **one or more** variables  |:white_check_mark: |:white_check_mark: |
 |Document your application through **comments**  |:white_check_mark: |:white_check_mark: |
 
+# Compability
+|OS               |Implemented                | Tested |
+|----------------|-------------------------------|--------------|
+|Unix    |:white_check_mark: |:white_check_mark: |
+|Windows         |:white_check_mark: |:white_check_mark: |
 
 
 
-> **Note:** The whole program was only tested in **UNIX** environment. Operating system data acquisition commands may not work
-correctly in other environments.
-
-
-
+> **Note:** The whole program was only tested in **Unix** and **Windows** environments. Operating system data acquisition commands may not work correctly in other not tested environments.
