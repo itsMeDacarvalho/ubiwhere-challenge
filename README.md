@@ -9,7 +9,7 @@ This is my Ubiwhere challenge repository. This program simulates a data acquisit
 The data created by this external device is produced by a simulator and collected every second.
 The percentage of available processor and RAM usage are also collected every second.
 
-A local database was implemented using a Go - Bolt library - which provides tools to create and manage an embedded database.
+A local database was implemented using a Go library **- Bolt -** which provides tools to create and manage an embedded database.
 
 # 
 |Requirement               |Implemented                | Tested |
