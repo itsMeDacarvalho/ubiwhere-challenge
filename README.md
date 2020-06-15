@@ -11,6 +11,8 @@ The percentage of **used processor and RAM usage** are also collected every seco
 
 A local database was implemented using a Go library **- Bolt -** which provides tools to create and manage an embedded database.
 
+A **log file** is created, with all started sessions and relevant information. The **database is created whenever it does not exist** and its control variables are also updated with each new session of the program.
+
 # 
 |Requirement               |Implemented                | Tested |
 |----------------|-------------------------------|--------------|
