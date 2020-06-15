@@ -1,3 +1,11 @@
+/*
+	Author	:	Daniel Alexandre Neves de Carvalho
+	Date	:	15/06/2020
+	File	:	collector.go
+	Overview: 	Collector only provides two functions to get OS data.
+				CPU and RAM are collected from here.
+*/
+
 package collector
 
 import (

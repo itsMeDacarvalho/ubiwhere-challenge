@@ -1,3 +1,12 @@
+/*
+	Author	:	Daniel Alexandre Neves de Carvalho
+	Date	:	15/06/2020
+	File	:	database.go
+	Overview: 	Database provides some structures to handle different types
+				of entries in database. It also provides functions to communicate
+				with the database.
+*/
+
 package database
 
 import (

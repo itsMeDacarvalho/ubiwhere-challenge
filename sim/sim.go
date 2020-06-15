@@ -1,3 +1,13 @@
+/*
+	Author	:	Daniel Alexandre Neves de Carvalho
+	Date	:	15/06/2020
+	File	:	sim.go
+	Overview: 	Sim provides a simple interface in order to simulate an
+				external device. the only function here, generate 4 random
+				samples between 1 and 10. In the end the sample data generated
+				is returned.
+*/
+
 package sim
 
 import (

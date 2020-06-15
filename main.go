@@ -1,3 +1,12 @@
+/*
+	Author	:	Daniel Alexandre Neves de Carvalho
+	Date	:	15/06/2020
+	File	:	main.go
+	Overview: 	This is the main program, it runs the scheduler to obtain data
+				in a desired order and provides the main loop for the menu for
+				user interface
+*/
+
 package main
 
 import (

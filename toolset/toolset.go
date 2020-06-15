@@ -1,3 +1,12 @@
+/*
+	Author	:	Daniel Alexandre Neves de Carvalho
+	Date	:	15/06/2020
+	File	:	toolset.go
+	Overview: 	Toolset handle all data printing/formating and provides
+				some GET and PUT functions to handle data to database. It
+				also have some tools to handle the log file, etc...
+*/
+
 package toolset
 
 import (
