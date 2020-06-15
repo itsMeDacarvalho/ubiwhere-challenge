@@ -108,6 +108,8 @@ func GetLastN(db *bolt.DB, codeStr string) (map[int][]int, error) {
 	var tmpSamples database.Sample
 	var tmpOS database.PerformanceOS
 
+	dataException := false
+
 	// Start database transaction
 	err := db.View(func(tx *bolt.Tx) error {
 		// Get SAMPLES table data
@@ -126,6 +128,7 @@ func GetLastN(db *bolt.DB, codeStr string) (map[int][]int, error) {
 		for i := 0; i < desiredN; i++ {
 			if sampleValue == nil || osValue == nil {
 				fmt.Printf("[Info] - Desired number of metrics exceed total size of table.\n")
+				dataException = true
 				break
 			}
 			// Decode value data that contains 4 ints for each sample
@@ -164,6 +167,9 @@ func GetLastN(db *bolt.DB, codeStr string) (map[int][]int, error) {
 		WriteToLog(fmt.Sprintf("%s \t || [Database] \t Error while getting metrics from SAMPLES table \n", GetFormatedTime()))
 	}
 
+	if dataException {
+		return nil, err
+	}
 	return sampleData, err
 }
 

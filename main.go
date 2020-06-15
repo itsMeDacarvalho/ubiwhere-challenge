@@ -60,13 +60,17 @@ func main() {
 		case "1":
 			data, _ := toolset.GetLastN(db, value)
 
-			// Print data
-			toolset.PrintLastN(data, value)
+			if data != nil {
+				// Print data
+				toolset.PrintLastN(data, value)
+			}
 		case "2":
 			data, _ := toolset.GetLastN(db, value)
 
-			// Print data
-			toolset.PrintLastN(data, value)
+			if data != nil {
+				// Print data
+				toolset.PrintLastN(data, value)
+			}
 		case "3":
 			toolset.PrintAverage(db, value)
 		}
